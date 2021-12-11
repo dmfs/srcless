@@ -1,0 +1,2 @@
+org.dmfs.srcless.processors.staticfactory.StaticFactoryProcessor
+org.dmfs.srcless.processors.composable.ComposableProcessor

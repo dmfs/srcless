@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+configurations {
+    pom
+}
+
+apply from: '../publish.gradle'
+apply from: '../jacoco.gradle'
