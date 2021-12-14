@@ -58,6 +58,8 @@ class StaticFactoryProcessorTest
         assertThat(compilation).generatedSourceFile("org.dmfs.srcless.staticfactory.Factory")
             .hasSourceEquivalentTo(forResource("org/dmfs/srcless/staticfactory/ThrowingFactoryExpected.java"));
     }
+
+
     @Test
     public void testGeneric()
     {

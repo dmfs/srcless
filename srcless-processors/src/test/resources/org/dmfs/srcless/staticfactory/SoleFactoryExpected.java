@@ -1,7 +1,5 @@
 package org.dmfs.srcless.staticfactory;
 
-import java.lang.String
-
 public final class Factory
 {
     private Factory()

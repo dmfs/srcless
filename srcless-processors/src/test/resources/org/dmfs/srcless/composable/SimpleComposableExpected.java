@@ -1,6 +1,5 @@
 package org.dmfs.srcless.composable;
 
-import java.lang.String
 /**
  * Test JavaDoc.
  */

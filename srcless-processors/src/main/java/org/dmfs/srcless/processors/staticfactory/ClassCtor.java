@@ -1,9 +1,9 @@
 package org.dmfs.srcless.processors.staticfactory;
 
-import org.dmfs.srcless.annotations.staticfactory.StaticFactories;
-import org.dmfs.srcless.annotations.staticfactory.StaticFactory;
 import org.dmfs.jems2.optional.*;
 import org.dmfs.jems2.predicate.Not;
+import org.dmfs.srcless.annotations.staticfactory.StaticFactories;
+import org.dmfs.srcless.annotations.staticfactory.StaticFactory;
 import org.dmfs.srcless.utils.PackageName;
 
 import javax.lang.model.element.ExecutableElement;
