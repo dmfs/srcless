@@ -1,4 +1,4 @@
 rootProject.name = 'srcless'
-include 'srcless.annotations'
-include 'srcless.processors'
+include 'srcless-annotations'
+include 'srcless-processors'
 
