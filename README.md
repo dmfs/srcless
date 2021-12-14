@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/dmfs/srcless.svg?branch=master)](https://travis-ci.com/dmfs/srcless)
-[![codecov](https://codecov.io/gh/dmfs/srcless/branch/master/graph/badge.svg)](https://codecov.io/gh/dmfs/srcless)
+[![Build Status](https://travis-ci.com/dmfs/srcless.svg?branch=main)](https://travis-ci.com/dmfs/srcless)
+[![codecov](https://codecov.io/gh/dmfs/srcless/branch/main/graph/badge.svg)](https://codecov.io/gh/dmfs/srcless)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/dmfs/srcless.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/dmfs/srcless/context:java)
 
 # srcless
