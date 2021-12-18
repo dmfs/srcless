@@ -105,7 +105,7 @@ public final class StaticFactoryProcessor extends AbstractProcessor
                     new Sieved<>(
                         an -> new First<>(ElementType.METHOD::equals,
                             new Expanded<>(
-                                Seq::new,
+                                target->new Seq<>(target.value()),
                                 new NullSafe<>(an.getAnnotationType().asElement().getAnnotation(Target.class)))).isPresent(),
                         ctor.ctor().getAnnotationMirrors())))
                 .addTypeVariables(new Mapped<>(TypeVariableName::get, new Joined<>(ctor.clazz().getTypeParameters(), ctor.ctor().getTypeParameters())))
