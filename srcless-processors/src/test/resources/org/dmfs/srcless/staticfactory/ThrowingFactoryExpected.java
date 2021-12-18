@@ -1,7 +1,7 @@
 package org.dmfs.srcless.staticfactory;
 
 import java.io.IOException;
-
+import java.lang.String;
 
 public final class Factory
 {

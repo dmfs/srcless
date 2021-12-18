@@ -64,7 +64,6 @@ public final class StaticFactoryProcessor extends AbstractProcessor
             .process(file -> {
                 try
                 {
-                    System.out.println(file.toString());
                     file.writeTo(processingEnv.getFiler());
                 }
                 catch (IOException e)
@@ -119,10 +118,7 @@ public final class StaticFactoryProcessor extends AbstractProcessor
                         .build(),
                     ctor.ctor().getParameters()))
                 .addStatement("return new $1L$2L($3L)", ctor.clazz().getSimpleName(),
-                    new Joined<>(
-                        ctor.clazz().getTypeParameters(),
-                        ctor.ctor().getTypeParameters())
-                        .iterator().hasNext() ? "<>" : "",
+                    ctor.clazz().getTypeParameters().iterator().hasNext() ? "<>" : "",
                     ctor.ctor().getParameters());
         new ForEach<>(new NullSafe<>(processingEnv.getElementUtils().getDocComment(ctor.ctor()))).process(builder::addJavadoc);
 

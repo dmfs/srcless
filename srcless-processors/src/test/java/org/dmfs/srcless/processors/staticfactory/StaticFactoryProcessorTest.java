@@ -68,4 +68,14 @@ class StaticFactoryProcessorTest
         assertThat(compilation).generatedSourceFile("org.dmfs.srcless.staticfactory.Factory")
             .hasSourceEquivalentTo(forResource("org/dmfs/srcless/staticfactory/GenericFactoryExpected.java"));
     }
+
+
+    @Test
+    public void testGenericCtor()
+    {
+        Compilation compilation = compiler.compile(forResource("org/dmfs/srcless/staticfactory/GenericCtorFactory.java"));
+        assertThat(compilation).succeeded();
+        assertThat(compilation).generatedSourceFile("org.dmfs.srcless.staticfactory.Factory")
+            .hasSourceEquivalentTo(forResource("org/dmfs/srcless/staticfactory/GenericCtorFactoryExpected.java"));
+    }
 }

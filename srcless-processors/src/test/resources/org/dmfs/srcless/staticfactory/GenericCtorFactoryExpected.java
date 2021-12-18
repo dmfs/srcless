@@ -1,7 +1,5 @@
 package org.dmfs.srcless.staticfactory;
 
-import java.lang.String;
-
 public final class Factory
 {
     private Factory()
@@ -10,9 +8,8 @@ public final class Factory
     }
 
 
-    public static SoleFactory soleFactory(String s)
+    public static <W> GenericCtorFactory genericCtorFactory(W w)
     {
-        return new SoleFactory(s);
+        return new GenericCtorFactory(w);
     }
 }
-
