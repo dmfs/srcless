@@ -2,11 +2,7 @@ plugins {
     id 'java-library'
 }
 
-sourceCompatibility = 1.8
-
-configurations {
-    pom
-}
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 apply from: '../publish.gradle'
 apply from: '../jacoco.gradle'
