@@ -21,12 +21,10 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
+
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
 
 
 /**
@@ -34,7 +32,6 @@ import javax.lang.model.element.TypeElement;
  * all public constructors of a class annotated with @{@link StaticFactories}.
  */
 @SupportedAnnotationTypes({ "org.dmfs.srcless.annotations.staticfactory.StaticFactory", "org.dmfs.srcless.annotations.staticfactory.StaticFactories" })
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public final class StaticFactoryProcessor extends AbstractProcessor
 {
     @Override
@@ -48,18 +45,23 @@ public final class StaticFactoryProcessor extends AbstractProcessor
                     new Sorted<>(
                         new By<>(ctor -> ctor.targetPackage() + "." + ctor.targetClass()),
                         new Joined<>(
+                            new Expanded<>(
+                                clazz -> new LombokConstructors((TypeElement) clazz),
+                                roundEnv.getElementsAnnotatedWith(StaticFactories.class)),
                             new Sieved<>(
-                                ctor -> !ctor.ctor().getModifiers().contains(Modifier.PRIVATE),
+                                ctor -> !ctor.description().hasModifier(PRIVATE),
                                 new org.dmfs.jems2.iterable.Mapped<>(
                                     ctor -> new ClassCtor((TypeElement) ctor.getEnclosingElement(), (ExecutableElement) ctor),
                                     new Sieved<>(
                                         c -> c.getKind() == ElementKind.CONSTRUCTOR,
                                         roundEnv.getElementsAnnotatedWith(StaticFactory.class)))),
                             new Sieved<>(
-                                ctor -> ctor.ctor().getAnnotation(StaticFactory.class) == null && ctor.ctor().getModifiers().contains(Modifier.PUBLIC),
+                                ctor -> ctor.description().annotation(StaticFactory.class) == null && ctor.description().hasModifier(PUBLIC),
                                 new Expanded<>(
                                     clazz -> new org.dmfs.jems2.iterable.Mapped<>(ctor -> new ClassCtor((TypeElement) clazz, ctor),
-                                        new Constructors((TypeElement) clazz)),
+                                        new Sieved<>(
+                                            new Not<>(new IsDefaultCtorInLombokClass()), // exclude default ctor of lombok annotated classes
+                                            new Constructors((TypeElement) clazz))),
                                     roundEnv.getElementsAnnotatedWith(StaticFactories.class))))))))
             .process(file -> {
                 try
@@ -79,14 +81,14 @@ public final class StaticFactoryProcessor extends AbstractProcessor
     /**
      * Create a {@link JavaFile} that contains all the static factory methods for the given constructors.
      */
-    private JavaFile staticFactoryContainer(String packageName, String className, Iterable<ClassCtor> ctor)
+    private JavaFile staticFactoryContainer(String packageName, String className, Iterable<? extends AnnotatedCtor> ctor)
     {
         return JavaFile.builder(
                 packageName,
                 TypeSpec.classBuilder(className)
                     .addJavadoc("Automatically generated class with static factory methods.")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).addComment("no-instances constructor").build())
+                    .addModifiers(PUBLIC, Modifier.FINAL)
+                    .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).addComment("no-instances constructor").build())
                     .addMethods(new Mapped<>(this::staticFactoryMethod, ctor)).build())
             .build();
     }
@@ -95,32 +97,35 @@ public final class StaticFactoryProcessor extends AbstractProcessor
     /**
      * Creates a {@link MethodSpec} of a static factory method for the given Constructor.
      */
-    private MethodSpec staticFactoryMethod(ClassCtor ctor)
+    private MethodSpec staticFactoryMethod(AnnotatedCtor ctor)
     {
+        CtorDescription ctorDescription = ctor.description();
+
         MethodSpec.Builder builder =
-            MethodSpec.methodBuilder(factoryMethodName(ctor))
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addExceptions(new Mapped<>(TypeName::get, ctor.ctor().getThrownTypes()))
+            MethodSpec.methodBuilder(factoryMethodName(ctorDescription))
+                .addModifiers(PUBLIC, Modifier.STATIC)
+                .addExceptions(new Mapped<>(TypeName::get, ctorDescription.thrownExceptions()))
                 .addAnnotations(new Mapped<>(AnnotationSpec::get,
                     new Sieved<>(
-                        an -> new First<>(ElementType.METHOD::equals,
+                        an -> new First<ElementType>(ElementType.METHOD::equals,
                             new Expanded<>(
-                                target->new Seq<>(target.value()),
+                                target -> new Seq<>(target.value()),
                                 new NullSafe<>(an.getAnnotationType().asElement().getAnnotation(Target.class)))).isPresent(),
-                        ctor.ctor().getAnnotationMirrors())))
-                .addTypeVariables(new Mapped<>(TypeVariableName::get, new Joined<>(ctor.clazz().getTypeParameters(), ctor.ctor().getTypeParameters())))
+                        ctorDescription.annotationMirrors())))
+                .addTypeVariables(new Mapped<>(TypeVariableName::get, new Joined<>(ctor.clazz().getTypeParameters(), ctorDescription.typeParameters())))
                 .returns(TypeName.get(ctor.clazz().asType()))
-                .varargs(ctor.ctor().isVarArgs())
+                .varargs(ctorDescription.hasVarArgs())
                 .addParameters(new Mapped<>(param ->
                     ParameterSpec.builder(TypeName.get(param.asType()), param.getSimpleName().toString())
-                        .addModifiers(param.getModifiers())
                         .addAnnotations(new Mapped<>(AnnotationSpec::get, param.getAnnotationMirrors()))
                         .build(),
-                    ctor.ctor().getParameters()))
-                .addStatement("return new $1L$2L($3L)", ctor.clazz().getSimpleName(),
-                    ctor.clazz().getTypeParameters().iterator().hasNext() ? "<>" : "",
-                    ctor.ctor().getParameters());
-        new ForEach<>(new NullSafe<>(processingEnv.getElementUtils().getDocComment(ctor.ctor()))).process(builder::addJavadoc);
+                    ctorDescription.parameters()))
+                .addStatement("return new $1L$2L($3L)",
+                    ctorDescription.name(),
+                    ctor.clazz().getTypeParameters().isEmpty() ? "" : "<>",
+                    String.join(", ", new Mapped<>(VariableElement::getSimpleName, ctorDescription.parameters())));
+
+        builder.addJavadoc(ctorDescription.javaDoc(processingEnv));
 
         return builder.build();
     }
@@ -129,13 +134,13 @@ public final class StaticFactoryProcessor extends AbstractProcessor
     /**
      * Returns the name of the factory method.
      */
-    private String factoryMethodName(ClassCtor ctor)
+    private String factoryMethodName(CtorDescription ctor)
     {
         return new FirstPresent<>(
             new org.dmfs.jems2.optional.Sieved<>(new Not<>(String::isEmpty),
-                new org.dmfs.jems2.optional.Mapped<>(StaticFactory::methodName, new NullSafe<>(ctor.ctor().getAnnotation(StaticFactory.class)))),
+                new org.dmfs.jems2.optional.Mapped<>(StaticFactory::methodName, new NullSafe<>(ctor.annotation(StaticFactory.class)))),
             new org.dmfs.jems2.optional.Just<>(() -> {
-                String constructorName = ctor.ctor().getEnclosingElement().getSimpleName().toString();
+                String constructorName = ctor.name();
                 return Character.toLowerCase(constructorName.charAt(0)) + constructorName.substring(1);
             })).value();
     }

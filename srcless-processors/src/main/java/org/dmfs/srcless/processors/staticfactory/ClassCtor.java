@@ -2,24 +2,28 @@ package org.dmfs.srcless.processors.staticfactory;
 
 import org.dmfs.jems2.optional.*;
 import org.dmfs.jems2.predicate.Not;
+import org.dmfs.jems2.single.Backed;
 import org.dmfs.srcless.annotations.staticfactory.StaticFactories;
 import org.dmfs.srcless.annotations.staticfactory.StaticFactory;
 import org.dmfs.srcless.utils.PackageName;
 
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
+import java.lang.annotation.Annotation;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
 
 
 class ClassCtor implements AnnotatedCtor
 {
-    private final TypeElement clazz;
-    private final ExecutableElement ctor;
+    private final TypeElement mClassElement;
+    private final ExecutableElement mCtorElement;
 
 
-    public ClassCtor(TypeElement clazz, ExecutableElement ctor)
+    public ClassCtor(TypeElement classElement, ExecutableElement ctorElement)
     {
-        this.clazz = clazz;
-        this.ctor = ctor;
+        mClassElement = classElement;
+        mCtorElement = ctorElement;
     }
 
 
@@ -28,10 +32,10 @@ class ClassCtor implements AnnotatedCtor
     {
         return new FirstPresent<>(
             new Sieved<>(new Not<>(String::isEmpty),
-                new Mapped<>(StaticFactory::packageName, new NullSafe<>(ctor.getAnnotation(StaticFactory.class)))),
+                new Mapped<>(StaticFactory::packageName, new NullSafe<>(mCtorElement.getAnnotation(StaticFactory.class)))),
             new Sieved<>(new Not<>(String::isEmpty),
-                new Mapped<>(StaticFactories::packageName, new NullSafe<>(clazz.getAnnotation(StaticFactories.class)))),
-            new Just<>(new PackageName(clazz))
+                new Mapped<>(StaticFactories::packageName, new NullSafe<>(mClassElement.getAnnotation(StaticFactories.class)))),
+            new Just<>(new PackageName(mClassElement))
         ).value();
     }
 
@@ -41,9 +45,9 @@ class ClassCtor implements AnnotatedCtor
     {
         return new FirstPresent<>(
             new Sieved<>(new Not<>(String::isEmpty),
-                new Mapped<>(StaticFactory::value, new NullSafe<>(ctor.getAnnotation(StaticFactory.class)))),
+                new Mapped<>(StaticFactory::value, new NullSafe<>(mCtorElement.getAnnotation(StaticFactory.class)))),
             new Sieved<>(new Not<>(String::isEmpty),
-                new Mapped<>(StaticFactories::value, new NullSafe<>(clazz.getAnnotation(StaticFactories.class))))
+                new Mapped<>(StaticFactories::value, new NullSafe<>(mClassElement.getAnnotation(StaticFactories.class))))
         ).value();
     }
 
@@ -51,13 +55,76 @@ class ClassCtor implements AnnotatedCtor
     @Override
     public TypeElement clazz()
     {
-        return clazz;
+        return mClassElement;
     }
 
 
     @Override
-    public ExecutableElement ctor()
+    public CtorDescription description()
     {
-        return ctor;
+        return new CtorDescription()
+        {
+            @Override
+            public String name()
+            {
+                return mClassElement.getSimpleName().toString();
+            }
+
+
+            @Override
+            public boolean hasModifier(Modifier modifier)
+            {
+                return mCtorElement.getModifiers().contains(modifier);
+            }
+
+
+            @Override
+            public Iterable<? extends TypeMirror> thrownExceptions()
+            {
+                return mCtorElement.getThrownTypes();
+            }
+
+
+            @Override
+            public <T extends Annotation> T annotation(Class<T> clazz)
+            {
+                return mCtorElement.getAnnotation(clazz);
+            }
+
+
+            @Override
+            public Iterable<? extends VariableElement> parameters()
+            {
+                return mCtorElement.getParameters();
+            }
+
+
+            @Override
+            public String javaDoc(ProcessingEnvironment processingEnv)
+            {
+                return new Backed<>(new NullSafe<>(processingEnv.getElementUtils().getDocComment(mClassElement)), "").value();
+            }
+
+
+            @Override
+            public Iterable<? extends AnnotationMirror> annotationMirrors()
+            {
+                return mCtorElement.getAnnotationMirrors();
+            }
+
+
+            @Override
+            public boolean hasVarArgs()
+            {
+                return mCtorElement.isVarArgs();
+            }
+
+
+            @Override
+            public Iterable<? extends TypeParameterElement> typeParameters()
+            {
+                return mCtorElement.getTypeParameters();
+            }
+        };
     }
 }

@@ -1,6 +1,5 @@
 package org.dmfs.srcless.processors.staticfactory;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 
@@ -12,5 +11,5 @@ interface AnnotatedCtor
 
     TypeElement clazz();
 
-    ExecutableElement ctor();
+    CtorDescription description();
 }
