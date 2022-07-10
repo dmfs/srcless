@@ -6,6 +6,10 @@ import com.google.testing.compile.Compiler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
+import javax.annotation.processing.Processor;
+
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.JavaFileObjects.forResource;
 
@@ -16,9 +20,14 @@ class StaticFactoryProcessorTest
 
 
     @BeforeEach
-    public void setUpCompiler()
+    public void setUpCompiler() throws ClassNotFoundException, InstantiationException, IllegalAccessException
     {
-        compiler = Compiler.javac().withProcessors(new StaticFactoryProcessor());
+        Class<?> p = getClass().getClassLoader().loadClass("lombok.launch.AnnotationProcessorHider$AnnotationProcessor");
+        System.out.println(p.getName());
+        Class<?> p2 = getClass().getClassLoader().loadClass("lombok.launch.AnnotationProcessorHider$ClaimingProcessor");
+        System.out.println(p.getName());
+        compiler = Compiler.javac().withProcessors(new StaticFactoryProcessor(), (Processor) p.newInstance(), (Processor) p2.newInstance())
+            .withClasspathFrom(getClass().getClassLoader());
     }
 
 
@@ -80,7 +89,6 @@ class StaticFactoryProcessorTest
     }
 
 
-
     @Test
     public void testAnnotated()
     {
@@ -88,5 +96,16 @@ class StaticFactoryProcessorTest
         assertThat(compilation).succeeded();
         assertThat(compilation).generatedSourceFile("org.dmfs.srcless.staticfactory.Factory")
             .hasSourceEquivalentTo(forResource("org/dmfs/srcless/staticfactory/AnnotatedFactoryExpected.java"));
+    }
+
+
+    @Test
+    public void testAllArgs() throws IOException
+    {
+        Compilation compilation = compiler.compile(forResource("org/dmfs/srcless/staticfactory/AllArgsFactory.java"));
+        assertThat(compilation).succeeded();
+        System.out.println(compilation.toString());
+        assertThat(compilation).generatedSourceFile("org.dmfs.srcless.staticfactory.Factory")
+            .hasSourceEquivalentTo(forResource("org/dmfs/srcless/staticfactory/AllArgsFactoryExpected.java"));
     }
 }
