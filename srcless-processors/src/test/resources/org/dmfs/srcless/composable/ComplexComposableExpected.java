@@ -2,6 +2,7 @@ package a.b.c;
 
 import java.io.IOException;
 import java.lang.Integer;
+import java.lang.Override
 import java.lang.String;
 import java.net.URI;
 import javax.annotation.Nonnull;
@@ -22,18 +23,21 @@ public abstract class Complex<T> implements ComplexComposable<T>
     }
 
 
+    @Override
     public final void voidMethod()
     {
         mDelegate.voidMethod();
     }
 
 
+    @Override
     public final String throwingMethod() throws IOException
     {
         return mDelegate.throwingMethod()
     }
 
 
+    @Override
     public final <V> T genericMethod(String s, V v, T t)
     {
         return mDelegate.genericMethod(s, v, t)
@@ -41,6 +45,7 @@ public abstract class Complex<T> implements ComplexComposable<T>
 
 
     @Nonnull
+    @Override
     public final Integer annotatedMethod(@Nonnull URI u)
     {
         return mDelegate.annotatedMethod(u)

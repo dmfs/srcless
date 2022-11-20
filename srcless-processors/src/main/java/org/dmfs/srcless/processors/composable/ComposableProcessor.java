@@ -2,6 +2,8 @@ package org.dmfs.srcless.processors.composable;
 
 import com.squareup.javapoet.*;
 
+import org.dmfs.jems2.iterable.Distinct;
+import org.dmfs.jems2.iterable.Joined;
 import org.dmfs.jems2.iterable.Mapped;
 import org.dmfs.jems2.optional.Conditional;
 import org.dmfs.jems2.optional.NullSafe;
@@ -85,7 +87,9 @@ public final class ComposableProcessor extends AbstractProcessor
         MethodSpec.Builder builder =
             MethodSpec.methodBuilder(method.getSimpleName().toString())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addAnnotations(new Mapped<>(AnnotationSpec::get, method.getAnnotationMirrors()))
+                .addAnnotations(new Distinct<>(new Joined<>(
+                    new Mapped<>(AnnotationSpec::get, method.getAnnotationMirrors()),
+                    AnnotationSpec.builder(Override.class).build())))
                 .addTypeVariables(new Mapped<>(TypeVariableName::get, method.getTypeParameters()))
                 .varargs(method.isVarArgs())
                 .addParameters(new Mapped<>(param ->

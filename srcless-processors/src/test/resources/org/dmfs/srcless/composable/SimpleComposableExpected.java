@@ -1,5 +1,6 @@
 package org.dmfs.srcless.composable;
 
+import java.lang.Override
 import java.lang.String;
 
 /**
@@ -16,6 +17,7 @@ public abstract class SimpleComposableComposition<T> implements SimpleComposable
     }
 
 
+    @Override
     public final String stringMethod(int i)
     {
         return mDelegate.stringMethod(i);
