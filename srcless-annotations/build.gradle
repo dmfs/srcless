@@ -5,4 +5,3 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 apply from: '../publish.gradle'
-apply from: '../jacoco.gradle'
