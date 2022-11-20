@@ -13,7 +13,7 @@ public final class Factory
 
     public static AllArgsFactory allArgsFactory(@Nonnull String s, int i)
     {
-        return new AllArgsFactory(s, i);
+        return new org.dmfs.srcless.staticfactory.AllArgsFactory(s, i);
     }
 
 }

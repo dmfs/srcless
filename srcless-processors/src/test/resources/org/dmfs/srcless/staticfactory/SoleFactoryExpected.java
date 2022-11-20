@@ -12,7 +12,7 @@ public final class Factory
 
     public static SoleFactory soleFactory(String s)
     {
-        return new SoleFactory(s);
+        return new org.dmfs.srcless.staticfactory.SoleFactory(s);
     }
 }
 

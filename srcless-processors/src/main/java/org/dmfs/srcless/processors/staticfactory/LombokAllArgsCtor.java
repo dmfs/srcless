@@ -74,6 +74,13 @@ public final class LombokAllArgsCtor implements AnnotatedCtor
 
 
             @Override
+            public String fqClass()
+            {
+                return mClassElement.getQualifiedName().toString();
+            }
+
+
+            @Override
             public boolean hasModifier(Modifier modifier)
             {
                 // we only handle public ctors

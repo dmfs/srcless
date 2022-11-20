@@ -16,14 +16,14 @@ public final class Factory
     @SafeVarargs
     public static AnnotatedFactory annotatedFactory(Object... o)
     {
-        return new AnnotatedFactory(o);
+        return new org.dmfs.srcless.staticfactory.AnnotatedFactory(o);
     }
 
 
     @SuppressWarnings("unchecked")
     public static AnnotatedFactory annotatedFactory(String s)
     {
-        return new AnnotatedFactory(s);
+        return new org.dmfs.srcless.staticfactory.AnnotatedFactory(s);
     }
 
 }

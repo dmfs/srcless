@@ -10,13 +10,13 @@ public final class Factory
 
     public static <U, V, W> GenericFactory<U, V> genericFactory(U u, V v, W w)
     {
-        return new GenericFactory<>(u, v, w);
+        return new org.dmfs.srcless.staticfactory.GenericFactory<>(u, v, w);
     }
 
 
     public static <U, V> GenericFactory<U, V> genericFactory(U u, V v)
     {
-        return new GenericFactory<>(u, v);
+        return new org.dmfs.srcless.staticfactory.GenericFactory<>(u, v);
     }
 
 }

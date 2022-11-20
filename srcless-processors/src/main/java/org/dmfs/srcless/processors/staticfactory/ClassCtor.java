@@ -72,6 +72,13 @@ class ClassCtor implements AnnotatedCtor
 
 
             @Override
+            public String fqClass()
+            {
+                return mClassElement.getQualifiedName().toString();
+            }
+
+
+            @Override
             public boolean hasModifier(Modifier modifier)
             {
                 return mCtorElement.getModifiers().contains(modifier);
