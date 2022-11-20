@@ -13,7 +13,7 @@ public final class Factory
 
     public static ThrowingFactory throwingFactory(String s) throws IOException
     {
-        return new ThrowingFactory(s);
+        return new org.dmfs.srcless.staticfactory.ThrowingFactory(s);
     }
 }
 

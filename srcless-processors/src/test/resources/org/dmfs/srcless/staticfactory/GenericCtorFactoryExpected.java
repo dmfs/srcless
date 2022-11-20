@@ -10,6 +10,6 @@ public final class Factory
 
     public static <W> GenericCtorFactory genericCtorFactory(W w)
     {
-        return new GenericCtorFactory(w);
+        return new org.dmfs.srcless.staticfactory.GenericCtorFactory(w);
     }
 }

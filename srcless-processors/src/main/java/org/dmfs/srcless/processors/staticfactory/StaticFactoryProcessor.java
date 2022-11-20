@@ -121,7 +121,7 @@ public final class StaticFactoryProcessor extends AbstractProcessor
                         .build(),
                     ctorDescription.parameters()))
                 .addStatement("return new $1L$2L($3L)",
-                    ctorDescription.name(),
+                    ctorDescription.fqClass(),
                     ctor.clazz().getTypeParameters().isEmpty() ? "" : "<>",
                     String.join(", ", new Mapped<>(VariableElement::getSimpleName, ctorDescription.parameters())));
 

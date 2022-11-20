@@ -14,6 +14,8 @@ public interface CtorDescription
 {
     String name();
 
+    String fqClass();
+
     boolean hasModifier(Modifier modifier);
 
     Iterable<? extends TypeMirror> thrownExceptions();

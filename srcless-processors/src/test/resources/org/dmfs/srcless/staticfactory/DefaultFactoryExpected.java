@@ -10,6 +10,6 @@ public final class Factory
 
     public static DefaultFactory defaultFactory()
     {
-        return new DefaultFactory();
+        return new org.dmfs.srcless.staticfactory.DefaultFactory();
     }
 }
