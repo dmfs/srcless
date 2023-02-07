@@ -1,0 +1,27 @@
+import org.gradle.internal.jvm.Jvm
+
+plugins {
+    id 'java-library'
+}
+
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+apply from: '../publish.gradle'
+apply from: '../jacoco.gradle'
+
+dependencies {
+    if (JavaVersion.current() <= JavaVersion.VERSION_1_8) {
+        testImplementation files(Jvm.current().getToolsJar())
+    }
+    implementation 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.2.600'
+    implementation 'org.dmfs:jems2:2.11.1'
+    testImplementation "com.google.testing.compile:compile-testing:0.19"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs = ['--add-opens', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED']
+}

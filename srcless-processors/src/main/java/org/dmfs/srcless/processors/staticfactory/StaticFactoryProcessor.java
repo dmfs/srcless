@@ -66,7 +66,10 @@ public final class StaticFactoryProcessor extends AbstractProcessor
             .process(file -> {
                 try
                 {
-                    file.writeTo(processingEnv.getFiler());
+                    if (processingEnv.getElementUtils().getTypeElement(file.packageName + "." + file.typeSpec.name) == null)
+                    {
+                        file.writeTo(processingEnv.getFiler());
+                    }
                 }
                 catch (IOException e)
                 {

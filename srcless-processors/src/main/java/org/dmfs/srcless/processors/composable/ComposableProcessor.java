@@ -50,11 +50,15 @@ public final class ComposableProcessor extends AbstractProcessor
                     new org.dmfs.jems2.iterable.Sieved<>(e -> e.getKind() == ElementKind.METHOD, element.getEnclosedElements())));
             try
             {
-                file.writeTo(processingEnv.getFiler());
+                if (processingEnv.getElementUtils().getTypeElement(file.packageName + "." + file.typeSpec.name) == null)
+                {
+                    file.writeTo(processingEnv.getFiler());
+                }
             }
             catch (IOException e)
             {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "can't write Composable output class.", element);
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.toString());
             }
         }
         return true;
